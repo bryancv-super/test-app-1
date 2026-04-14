@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import { View, Text } from "react-native";
 import { loginAnonimo, observarAuth } from "../firebase/auth";
+import { View, Text, Button } from "react-native";
+import { crearNota } from "../firebase/firestore";
 
 export default function Index() {
 
@@ -17,8 +18,13 @@ export default function Index() {
   }, []);
 
   return (
-    <View>
-      <Text>App con Firebase</Text>
+    <View style={{ marginTop: 50 }}>
+      <Text>Firebase CRUD</Text>
+
+      <Button
+        title="Crear nota"
+        onPress={() => crearNota("Hola desde React Native")}
+      />
     </View>
   );
 }
