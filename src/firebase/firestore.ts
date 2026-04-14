@@ -1,3 +1,4 @@
+//Imports from firestore
 import {
   addDoc,
   collection,
@@ -5,12 +6,16 @@ import {
   onSnapshot,
   orderBy,
   query,
-  serverTimestamp
+  serverTimestamp, 
+  doc, 
+  updateDoc, 
+  deleteDoc 
 } from "firebase/firestore";
 import { app } from "./firebaseConfig";
 
 export const db = getFirestore(app);
 
+//Create note
 export const crearNota = async (texto: string) => {
   try {
     const docRef = await addDoc(collection(db, "notas"), {
@@ -24,6 +29,7 @@ export const crearNota = async (texto: string) => {
   }
 };
 
+//Read note
 export const escucharNotas = (callback: any) => {
   const q = query(
     collection(db, "notas"),
@@ -48,4 +54,32 @@ export const escucharNotas = (callback: any) => {
   });
 
   return unsubscribe;
+};
+
+//Update note
+export const actualizarNota = async (id: string, nuevoTexto: string) => {
+  try {
+    const ref = doc(db, "notas", id);
+
+    await updateDoc(ref, {
+      texto: nuevoTexto,
+    });
+
+    console.log("Nota actualizada");
+  } catch (error) {
+    console.error("Error actualizando:", error);
+  }
+};
+
+//Delete note
+export const eliminarNota = async (id: string) => {
+  try {
+    const ref = doc(db, "notas", id);
+
+    await deleteDoc(ref);
+
+    console.log("Nota eliminada");
+  } catch (error) {
+    console.error("Error eliminando:", error);
+  }
 };
