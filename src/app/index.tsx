@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { loginAnonimo, observarAuth } from "../firebase/auth";
-import { View, Text, Button, FlatList } from "react-native";
+import { 
+  View, 
+  Text, 
+  Button, 
+  FlatList 
+} from "react-native";
 import { crearNota, escucharNotas } from "../firebase/firestore";
 
 export default function Index() {
@@ -47,7 +52,7 @@ export default function Index() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <Text>
-            {item.texto} - {item.fecha}
+            {item.texto} - {item.fecha?.toDate().toLocaleString()}
           </Text>
         )}
       />

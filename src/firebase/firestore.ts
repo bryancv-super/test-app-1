@@ -1,4 +1,12 @@
-import { getFirestore, collection, addDoc, onSnapshot } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getFirestore,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp
+} from "firebase/firestore";
 import { app } from "./firebaseConfig";
 
 export const db = getFirestore(app);
@@ -7,7 +15,7 @@ export const crearNota = async (texto: string) => {
   try {
     const docRef = await addDoc(collection(db, "notas"), {
       texto,
-      fecha: Date.now(),
+      fecha: serverTimestamp(),
     });
 
     console.log("Documento creado con ID:", docRef.id);
@@ -17,10 +25,19 @@ export const crearNota = async (texto: string) => {
 };
 
 export const escucharNotas = (callback: any) => {
-  const unsubscribe = onSnapshot(collection(db, "notas"), (snapshot) => {
+  const q = query(
+    collection(db, "notas"),
+    orderBy("fecha", "desc")
+  );
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
     const notas: any[] = [];
 
     snapshot.forEach((doc) => {
+      const data = doc.data();
+
+      if (!data.fecha) return;
+
       notas.push({
         id: doc.id,
         ...doc.data(),
