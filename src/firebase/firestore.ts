@@ -2,25 +2,34 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   getFirestore,
   onSnapshot,
   orderBy,
   query,
-  serverTimestamp, 
-  doc, 
-  updateDoc, 
-  deleteDoc 
+  serverTimestamp,
+  updateDoc, where
 } from "firebase/firestore";
 import { app } from "./firebaseConfig";
+import { auth } from "./auth"; //To authenticate user operations
 
 export const db = getFirestore(app);
 
 //Create note
 export const crearNota = async (texto: string) => {
   try {
+    const user = auth.currentUser;
+
+    if (!user) {
+      console.log("No hay usuario");
+      return;
+    }
+
     const docRef = await addDoc(collection(db, "notas"), {
       texto,
       fecha: serverTimestamp(),
+      userId: user.uid,
     });
 
     console.log("Documento creado con ID:", docRef.id);
@@ -30,9 +39,10 @@ export const crearNota = async (texto: string) => {
 };
 
 //Read note
-export const escucharNotas = (callback: any) => {
+export const escucharNotas = (uid: string, callback: any) => {
   const q = query(
     collection(db, "notas"),
+    where("userId", "==", uid),
     orderBy("fecha", "desc")
   );
 
@@ -41,12 +51,11 @@ export const escucharNotas = (callback: any) => {
 
     snapshot.forEach((doc) => {
       const data = doc.data();
-
       if (!data.fecha) return;
 
       notas.push({
         id: doc.id,
-        ...doc.data(),
+        ...data,
       });
     });
 
@@ -55,7 +64,6 @@ export const escucharNotas = (callback: any) => {
 
   return unsubscribe;
 };
-
 //Update note
 export const actualizarNota = async (id: string, nuevoTexto: string) => {
   try {
