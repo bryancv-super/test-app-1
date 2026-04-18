@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { Button, FlatList,   TextInput, View } from "react-native";
+import { Button, FlatList, TextInput, View, Text } from "react-native";
 import { crearNota, escucharNotas } from "../firebase/firestore";
 import NotaItem from "../components/NotaItem";
-import { observarAuth } from "../firebase/auth";
+import { initAuth } from "../firebase/auth";
 
 export default function Index() {
   const [notas, setNotas] = useState<any[]>([]);
@@ -10,15 +10,13 @@ export default function Index() {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    const unsubscribeAuth = observarAuth((usuario: { uid: any; }) => {
-      if (usuario) {
-        console.log("Usuario listo:", usuario.uid);
-        setUser(usuario);
-      }
+    const unsubscribe = initAuth((usuario: any) => {
+      setUser(usuario);
     });
 
-    return unsubscribeAuth;
+    return unsubscribe;
   }, []);
+
 
   useEffect(() => {
     if (!user) return;
@@ -27,6 +25,12 @@ export default function Index() {
 
     return unsubscribeNotas;
   }, [user]);
+
+  
+  if (!user) {
+    return <Text>Cargando auth...</Text>;
+  }
+
 
   return (
     <View style={{ marginTop: 50, padding: 10 }}>
